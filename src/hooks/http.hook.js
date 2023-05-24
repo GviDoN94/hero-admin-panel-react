@@ -12,6 +12,7 @@ export const useHttp = () => {
     ) => {
       // setProcess('loading');
 
+      // eslint-disable-next-line no-useless-catch
       try {
         const response = await fetch(url, { method, body, headers });
 
