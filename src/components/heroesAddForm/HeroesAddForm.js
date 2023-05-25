@@ -8,9 +8,44 @@
 // Элементы <option></option> желательно сформировать на базе
 // данных из фильтров
 
+import { useHttp } from '../../hooks/http.hook';
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { v4 as uuid } from 'uuid';
+
+import { heroCreated } from '../../actions';
+
 const HeroesAddForm = () => {
+  const [heroName, setHeroName] = useState('');
+  const [heroDescr, setHeroDescr] = useState('');
+  const [heroElement, setHeroElement] = useState('');
+
+  const dispatch = useDispatch();
+  const { request } = useHttp();
+
+  const onSubmitHandler = (e) => {
+    e.preventDefault();
+
+    const newHero = {
+      id: uuid(),
+      name: heroName,
+      description: heroDescr,
+      element: heroElement,
+    };
+
+    request('http://localhost:3001/heroes', 'POST', JSON.stringify(newHero))
+      .then(() => 'asdfsadf')
+      .then(dispatch(heroCreated(newHero)))
+      .catch((e) => console.error(e))
+      .finally(() => {
+        setHeroName('');
+        setHeroDescr('');
+        setHeroElement('');
+      });
+  };
+
   return (
-    <form className="border p-4 shadow-lg rounded">
+    <form className="border p-4 shadow-lg rounded" onSubmit={onSubmitHandler}>
       <div className="mb-3">
         <label htmlFor="name" className="form-label fs-4">
           Имя нового героя
@@ -22,6 +57,8 @@ const HeroesAddForm = () => {
           className="form-control"
           id="name"
           placeholder="Как меня зовут?"
+          value={heroName}
+          onChange={(e) => setHeroName(e.target.value)}
         />
       </div>
 
@@ -36,6 +73,8 @@ const HeroesAddForm = () => {
           id="text"
           placeholder="Что я умею?"
           style={{ height: '130px' }}
+          value={heroDescr}
+          onChange={(e) => setHeroDescr(e.target.value)}
         />
       </div>
 
@@ -43,7 +82,14 @@ const HeroesAddForm = () => {
         <label htmlFor="element" className="form-label">
           Выбрать элемент героя
         </label>
-        <select required className="form-select" id="element" name="element">
+        <select
+          required
+          className="form-select"
+          id="element"
+          name="element"
+          value={heroElement}
+          onChange={(e) => setHeroElement(e.target.value)}
+        >
           <option>Я владею элементом...</option>
           <option value="fire">Огонь</option>
           <option value="water">Вода</option>
